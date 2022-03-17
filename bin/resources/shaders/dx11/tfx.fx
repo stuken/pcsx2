@@ -823,7 +823,7 @@ PS_OUTPUT ps_main(PS_INPUT input)
 
 	// Must be done before alpha correction
 	float alpha_blend;
-	if (PS_BLEND_C == 1 && PS_CLR_HW > 3)
+	if (PS_BLEND_C == 1 && PS_CLR_HW > 3 && PS_CLR_HW != 7)
 	{
 		float4 RT = trunc(RtTexture.Load(int3(input.p.xy, 0)) * 255.0f + 0.1f);
 		alpha_blend = (PS_DFMT == FMT_24) ? 1.0f : RT.a / 128.0f;
@@ -853,6 +853,11 @@ PS_OUTPUT ps_main(PS_INPUT input)
 	ps_color_clamp_wrap(C.rgb);
 
 	ps_fbmask(C, input.p.xy);
+
+	// Cs*As + Cd*(1 - As) replaced with Cs*As - Cd*As
+	// 1.0f needs to be substracted from alpha to compensate
+	if (PS_CLR_HW == 7)
+		alpha_blend -= 1.0f;
 
 	output.c0 = C / 255.0f;
 	output.c1 = (float4)(alpha_blend);

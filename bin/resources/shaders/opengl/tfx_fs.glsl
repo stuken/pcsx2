@@ -844,7 +844,7 @@ void ps_main()
 #endif
 
     // Must be done before alpha correction
-#if (PS_BLEND_C == 1 && PS_CLR_HW > 3)
+#if (PS_BLEND_C == 1 && PS_CLR_HW > 3 && PS_CLR_HW != 7)
     vec4 RT = trunc(texelFetch(RtSampler, ivec2(gl_FragCoord.xy), 0) * 255.0f + 0.1f);
     float alpha_blend = (PS_DFMT == FMT_24) ? 1.0f : RT.a / 128.0f;
 #else
@@ -884,6 +884,12 @@ void ps_main()
     ps_color_clamp_wrap(C.rgb);
 
     ps_fbmask(C);
+
+    // Cs*As + Cd*(1 - As) replaced with Cs*As - Cd*As
+    // 1.0f needs to be substracted from alpha to compensate
+#if PS_CLR_HW == 7
+    alpha_blend -= 1.0f;
+#endif
 
     SV_Target0 = C / 255.0f;
     SV_Target1 = vec4(alpha_blend);

@@ -550,6 +550,7 @@ void GSRendererNew::EmulateBlending(bool& DATE_PRIMID, bool& DATE_BARRIER)
 	// Get alpha value
 	const bool alpha_c0_zero = (m_conf.ps.blend_c == 0 && GetAlphaMinMax().max == 0);
 	const bool alpha_c0_one = (m_conf.ps.blend_c == 0 && (GetAlphaMinMax().min == 128) && (GetAlphaMinMax().max == 128));
+	const bool alpha_c0_high_min_one = (ALPHA.C == 0 && GetAlphaMinMax().min > 128);
 	const bool alpha_c0_high_max_one = (m_conf.ps.blend_c == 0 && GetAlphaMinMax().max > 128);
 	const bool alpha_c2_zero = (m_conf.ps.blend_c == 2 && ALPHA.FIX == 0u);
 	const bool alpha_c2_one = (m_conf.ps.blend_c == 2 && ALPHA.FIX == 128u);
@@ -851,10 +852,25 @@ void GSRendererNew::EmulateBlending(bool& DATE_PRIMID, bool& DATE_BARRIER)
 		}
 		else if (blend_mix)
 		{
+			// Must be done before blend mix 1 as the index and afix might change.
 			m_conf.blend = {blend_index, ALPHA.FIX, m_conf.ps.blend_c == 2, false, true};
 			m_conf.ps.blend_mix = 1;
 
-			if (blend_mix1)
+			if (blend_mix1 && (m_conf.ps.blend_b == m_conf.ps.blend_d) && (alpha_c0_high_min_one || alpha_c2_high_one))
+			{
+				// Cs*As + Cd*(1 - As) or Cs*F + Cd*(1 - F) replaced with Cs*As - Cd*As or Cs*F - Cd*F
+				// 1.0f needs to be substracted from alpha to compensate
+				m_conf.ps.blend_mix = 0;
+				m_conf.ps.clr_hw = 7;
+
+				const u8 swap_blend_index = alpha_c0_high_min_one ? 11u : alpha_c2_high_one ? 17u : blend_index;
+				m_conf.blend = {swap_blend_index, ALPHA.FIX - 0x80u, m_conf.ps.blend_c == 2, false, true};
+
+				m_conf.ps.blend_a = 0;
+				m_conf.ps.blend_b = 2;
+				m_conf.ps.blend_d = 2;
+			}
+			else if (blend_mix1)
 			{
 				m_conf.ps.blend_a = 0;
 				m_conf.ps.blend_b = 2;
