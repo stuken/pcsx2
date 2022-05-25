@@ -28,10 +28,13 @@ static const char* THEME_NAMES[] = {QT_TRANSLATE_NOOP("InterfaceSettingsWidget",
 	QT_TRANSLATE_NOOP("InterfaceSettingsWidget", "Untouched Lagoon (Grayish Green/-Blue ) [Light]"),
 	QT_TRANSLATE_NOOP("InterfaceSettingsWidget", "Baby Pastel (Pink) [Light]"),
 	QT_TRANSLATE_NOOP("InterfaceSettingsWidget", "PCSX2 (White/Blue) [Light]"),
-	QT_TRANSLATE_NOOP("InterfaceSettingsWidget", "Scarlet Devil (Red/Purple) [Dark]"), nullptr};
+	QT_TRANSLATE_NOOP("InterfaceSettingsWidget", "Scarlet Devil (Red/Purple) [Dark]"), 
+	QT_TRANSLATE_NOOP("InterfaceSettingsWidget", "Retro Green (Black / Green) [Dark]"), 
+	QT_TRANSLATE_NOOP("InterfaceSettingsWidget", "Retro Amber (Yellow / Amber) [Light]"), 
+	nullptr};
 
 static const char* THEME_VALUES[] = {"", "fusion", "darkfusion", "darkfusionblue", 
-	"UntouchedLagoon", "BabyPastel", "PCSX2Blue", "ScarletDevilRed", nullptr};
+	"UntouchedLagoon", "BabyPastel", "PCSX2Blue", "ScarletDevilRed", "RetroGreen", "RetroAmber", nullptr};
 
 InterfaceSettingsWidget::InterfaceSettingsWidget(SettingsDialog* dialog, QWidget* parent)
 	: QWidget(parent)
