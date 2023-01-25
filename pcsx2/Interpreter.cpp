@@ -311,7 +311,7 @@ void JAL()
 {
 	// 0x3563b8 is the start address of the function that invalidate entry in TLB cache
 	if (EmuConfig.Gamefixes.GoemonTlbHack) {
-		if (_JumpTarget_ == 0x3563b8)
+		if (_JumpTarget_ == 0x3563b8 || _JumpTarget_ == 0x35d628 || _JumpTarget_ == 0x35c118)
 			GoemonUnloadTlb(cpuRegs.GPR.n.a0.UL[0]);
 	}
 	_SetLink(31);
@@ -515,7 +515,7 @@ void JR()
 	// 0x33ad48 and 0x35060c are the return address of the function (0x356250) that populate the TLB cache
 	if (EmuConfig.Gamefixes.GoemonTlbHack) {
 		const u32 add = cpuRegs.GPR.r[_Rs_].UL[0];
-		if (add == 0x33ad48 || add == 0x35060c)
+		if (add == 0x33ad48 || add == 0x35060c || add == 0x340600 || add == 0x341ad0 || add == 0x357844 || add == 0x356334)
 			GoemonPreloadTlb();
 	}
 	doBranch(cpuRegs.GPR.r[_Rs_].UL[0]);
