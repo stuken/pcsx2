@@ -436,43 +436,62 @@ bool vtlb_memSafeWriteBytes(u32 mem, const void* src, u32 size)
 // Important recompiler note: Mid-block Exception handling isn't reliable *yet* because
 // memory ops don't flush the PC prior to invoking the indirect handlers.
 
+static GoemonTlb* FindGoemonTlbCacheAddress()
+{
+	u32 tlbAddrs[] = {
+		0x3d5580, // Cache table address for JPN final
+		0x3db400, // Cache table address for June 22 prototype
+		0x3dcd80 // Cache table address for August 26 prototype
+	};
+	for (u32 i = 0; i < sizeof(tlbAddrs); i++)
+	{
+		GoemonTlb* testTlb = (GoemonTlb*)&eeMem->Main[tlbAddrs[i]];
+		if (testTlb && testTlb[0].valid < 2)
+			return testTlb;
+	}
+	DevCon.WriteLn("FindGoemonTlbCacheAddress: Unable to find valid TLB address. Expect cache misses.");
+	return nullptr;
+}
 
 static void GoemonTlbMissDebug()
 {
-	// 0x3d5580 is the address of the TLB cache
-	GoemonTlb* tlb = (GoemonTlb*)&eeMem->Main[0x3d5580];
+	const GoemonTlb* goemonTlb = FindGoemonTlbCacheAddress();
 
-	for (u32 i = 0; i < 150; i++)
+	if (goemonTlb)
 	{
-		if (tlb[i].valid == 0x1 && tlb[i].low_add != tlb[i].high_add)
-			DevCon.WriteLn("GoemonTlbMissDebug: Entry %d is valid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)", i, tlb[i].key, tlb[i].low_add, tlb[i].high_add, tlb[i].physical_add);
-		else if (tlb[i].low_add != tlb[i].high_add)
-			DevCon.WriteLn("GoemonTlbMissDebug: Entry %d is invalid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)", i, tlb[i].key, tlb[i].low_add, tlb[i].high_add, tlb[i].physical_add);
+		for (u32 i = 0; i < 150; i++) {
+		if (goemonTlb[i].valid == 0x1 && goemonTlb[i].low_add != goemonTlb[i].high_add)
+			DevCon.WriteLn("GoemonTlbMissDebug: Entry %d is valid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)", i, goemonTlb[i].key, goemonTlb[i].low_add, goemonTlb[i].high_add, goemonTlb[i].physical_add);
+		else if (goemonTlb[i].low_add != goemonTlb[i].high_add)
+			DevCon.WriteLn("GoemonTlbMissDebug: Entry %d is invalid. Key %x. From V:0x%8.8x to V:0x%8.8x (P:0x%8.8x)", i, goemonTlb[i].key, goemonTlb[i].low_add, goemonTlb[i].high_add, goemonTlb[i].physical_add);
+		}
 	}
 }
 
 void GoemonPreloadTlb()
 {
-	// 0x3d5580 is the address of the TLB cache table
-	GoemonTlb* tlb = (GoemonTlb*)&eeMem->Main[0x3d5580];
+	const GoemonTlb* goemonTlb = FindGoemonTlbCacheAddress();
 
-	for (u32 i = 0; i < 150; i++)
+	if (goemonTlb)
 	{
-		if (tlb[i].valid == 0x1 && tlb[i].low_add != tlb[i].high_add)
+		for (u32 i = 0; i < 150; i++)
 		{
-
-			u32 size = tlb[i].high_add - tlb[i].low_add;
-			u32 vaddr = tlb[i].low_add;
-			u32 paddr = tlb[i].physical_add;
-
-			// TODO: The old code (commented below) seems to check specifically for handler 0.  Is this really correct?
-			//if ((uptr)vtlbdata.vmap[vaddr>>VTLB_PAGE_BITS] == POINTER_SIGN_BIT) {
-			auto vmv = vtlbdata.vmap[vaddr >> VTLB_PAGE_BITS];
-			if (vmv.isHandler(vaddr) && vmv.assumeHandlerGetID() == 0)
+			if (goemonTlb[i].valid == 0x1 && goemonTlb[i].low_add != goemonTlb[i].high_add)
 			{
-				DevCon.WriteLn("GoemonPreloadTlb: Entry %d. Key %x. From V:0x%8.8x to P:0x%8.8x (%d pages)", i, tlb[i].key, vaddr, paddr, size >> VTLB_PAGE_BITS);
-				vtlb_VMap(vaddr, paddr, size);
-				vtlb_VMap(0x20000000 | vaddr, paddr, size);
+
+				const u32 size = goemonTlb[i].high_add - goemonTlb[i].low_add;
+				const u32 vaddr = goemonTlb[i].low_add;
+				const u32 paddr = goemonTlb[i].physical_add;
+
+				// TODO: The old code (commented below) seems to check specifically for handler 0.  Is this really correct?
+				//if ((uptr)vtlbdata.vmap[vaddr>>VTLB_PAGE_BITS] == POINTER_SIGN_BIT) {
+				auto vmv = vtlbdata.vmap[vaddr >> VTLB_PAGE_BITS];
+				if (vmv.isHandler(vaddr) && vmv.assumeHandlerGetID() == 0)
+				{
+					DevCon.WriteLn("GoemonPreloadTlb: Entry %d. Key %x. From V:0x%8.8x to P:0x%8.8x (%d pages)", i, goemonTlb[i].key, vaddr, paddr, size >> VTLB_PAGE_BITS);
+					vtlb_VMap(vaddr, paddr, size);
+					vtlb_VMap(0x20000000 | vaddr, paddr, size);
+				}
 			}
 		}
 	}
@@ -480,31 +499,34 @@ void GoemonPreloadTlb()
 
 void GoemonUnloadTlb(u32 key)
 {
-	// 0x3d5580 is the address of the TLB cache table
-	GoemonTlb* tlb = (GoemonTlb*)&eeMem->Main[0x3d5580];
-	for (u32 i = 0; i < 150; i++)
+	GoemonTlb* goemonTlb = FindGoemonTlbCacheAddress();
+
+	if (goemonTlb)
 	{
-		if (tlb[i].key == key)
+		for (u32 i = 0; i < 150; i++)
 		{
-			if (tlb[i].valid == 0x1)
+			if (goemonTlb[i].key == key)
 			{
-				u32 size = tlb[i].high_add - tlb[i].low_add;
-				u32 vaddr = tlb[i].low_add;
-				DevCon.WriteLn("GoemonUnloadTlb: Entry %d. Key %x. From V:0x%8.8x to V:0x%8.8x (%d pages)", i, tlb[i].key, vaddr, vaddr + size, size >> VTLB_PAGE_BITS);
+				if (goemonTlb[i].valid == 0x1)
+				{
+					const u32 size = goemonTlb[i].high_add - goemonTlb[i].low_add;
+					const u32 vaddr = goemonTlb[i].low_add;
+					DevCon.WriteLn("GoemonUnloadTlb: Entry %d. Key %x. From V:0x%8.8x to V:0x%8.8x (%d pages)", i, goemonTlb[i].key, vaddr, vaddr + size, size >> VTLB_PAGE_BITS);
 
-				vtlb_VMapUnmap(vaddr, size);
-				vtlb_VMapUnmap(0x20000000 | vaddr, size);
+					vtlb_VMapUnmap(vaddr, size);
+					vtlb_VMapUnmap(0x20000000 | vaddr, size);
 
-				// Unmap the tlb in game cache table
-				// Note: Game copy FEFEFEFE for others data
-				tlb[i].valid = 0;
-				tlb[i].key = 0xFEFEFEFE;
-				tlb[i].low_add = 0xFEFEFEFE;
-				tlb[i].high_add = 0xFEFEFEFE;
-			}
-			else
-			{
-				DevCon.Error("GoemonUnloadTlb: Entry %d is not valid. Key %x", i, tlb[i].key);
+					// Unmap the tlb in game cache table
+					// Note: Game copy FEFEFEFE for others data
+					goemonTlb[i].valid = 0;
+					goemonTlb[i].key = 0xFEFEFEFE;
+					goemonTlb[i].low_add = 0xFEFEFEFE;
+					goemonTlb[i].high_add = 0xFEFEFEFE;
+				}
+				else
+				{
+					DevCon.Error("GoemonUnloadTlb: Entry %d is not valid. Key %x", i, goemonTlb[i].key);
+				}
 			}
 		}
 	}
