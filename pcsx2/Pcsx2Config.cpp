@@ -696,6 +696,7 @@ const char* Pcsx2Config::GSOptions::GetRendererName(GSRendererType type)
 		case GSRendererType::VK:    return "Vulkan";
 		case GSRendererType::SW:    return "Software";
 		case GSRendererType::Null:  return "Null";
+		case GSRendererType::ParallelGS: return "paraLLEl";
 		default:                    return "";
 			// clang-format on
 	}
@@ -882,7 +883,14 @@ bool Pcsx2Config::GSOptions::OptionsAreEqual(const GSOptions& right) const
 		OpEqu(Adapter) &&
 
 		OpEqu(HWDumpDirectory) &&
-		OpEqu(SWDumpDirectory));
+		OpEqu(SWDumpDirectory)) &&
+		OpEqu(PGSSuperSampling) &&
+		OpEqu(PGSHighResScanout) &&
+		OpEqu(PGSSuperSampleTextures) &&
+		OpEqu(PGSDisableMipmaps) &&
+		OpEqu(PGSDisableReadbackSync) &&
+		OpEqu(PGSSharpBackbuffer) &&
+		OpEqu(PGSBlendDemotion);
 }
 
 bool Pcsx2Config::GSOptions::operator!=(const GSOptions& right) const
@@ -967,6 +975,13 @@ void Pcsx2Config::GSOptions::LoadSave(SettingsWrapper& wrap)
 	SettingsWrapBitBool(HWSpinCPUForReadbacks);
 	SettingsWrapBitBoolEx(GPUPaletteConversion, "paltex");
 	SettingsWrapBitBoolEx(AutoFlushSW, "autoflush_sw");
+	SettingsWrapIntEnumEx(PGSSuperSampling, "pgsSuperSampling");
+	SettingsWrapBitBoolEx(PGSHighResScanout, "pgsHighResScanout");
+	SettingsWrapBitBoolEx(PGSSuperSampleTextures, "pgsSuperSampleTextures");
+	SettingsWrapBitBoolEx(PGSDisableMipmaps, "pgsDisableMipmaps");
+	SettingsWrapBitBoolEx(PGSDisableReadbackSync, "pgsDisableReadbackSync");
+	SettingsWrapBitBoolEx(PGSSharpBackbuffer, "pgsSharpBackbuffer");
+	SettingsWrapBitBoolEx(PGSBlendDemotion, "pgsBlendDemotion");
 	SettingsWrapBitBoolEx(PreloadFrameWithGSData, "preload_frame_with_gs_data");
 	SettingsWrapBitBoolEx(Mipmap, "mipmap");
 	SettingsWrapBitBoolEx(ManualUserHacks, "UserHacks");
