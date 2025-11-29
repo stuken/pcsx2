@@ -53,6 +53,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
         with:
+          submodules: "recursive"
           set-safe-directory: ${{ env.GITHUB_WORKSPACE }}
           # 10 here, since the odds of having 10 untagged commits in a row should be slim to none
           # This is required for the tagging logic in generate-metainfo.sh

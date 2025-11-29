@@ -61,7 +61,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v6
         with:
-           fetch-depth: 0
+          fetch-depth: 1
+          submodules: "recursive"
+          set-safe-directory: true
 
       # actions/checkout elides tags, fetch them primarily for releases
       - name: Fetch Tags
