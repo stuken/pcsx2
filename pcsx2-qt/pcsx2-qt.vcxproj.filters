@@ -1018,6 +1018,9 @@
     <QtUi Include="Debugger\ModuleView.ui">
       <Filter>Debugger</Filter>
     </QtUi>
+    <QtUi Include="Settings\GraphicsPGSRenderingSettingsTab.ui">
+      <Filter>Settings</Filter>
+    </QtUi>
   </ItemGroup>
   <ItemGroup>
     <QtTs Include="Translations\pcsx2-qt_en.ts">
