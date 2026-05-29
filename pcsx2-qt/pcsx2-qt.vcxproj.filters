@@ -282,6 +282,7 @@
     <ClCompile Include="Debugger\ModuleModel.cpp">
       <Filter>Debugger</Filter>
     </ClCompile>
+    <ClCompile Include="LogWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="..\pcsx2\windows\PCSX2.manifest">
@@ -300,9 +301,6 @@
       <Filter>Settings</Filter>
     </ClInclude>
     <ClInclude Include="Settings\MemoryCardConvertWorker.h">
-      <Filter>Settings</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\OsdFontPickerDialog.h">
       <Filter>Settings</Filter>
     </ClInclude>
     <ClInclude Include="Debugger\DebuggerSettingsManager.h">
@@ -532,6 +530,7 @@
     <QtMoc Include="Debugger\ModuleModel.h">
       <Filter>Debugger</Filter>
     </QtMoc>
+    <QtMoc Include="Settings\OsdFontPickerDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <QtResource Include="resources\resources.qrc">
@@ -799,6 +798,9 @@
     </QtUi>
     <QtUi Include="Debugger\ModuleView.ui">
       <Filter>Debugger</Filter>
+    </QtUi>
+    <QtUi Include="Settings\GraphicsPGSRenderingSettingsTab.ui">
+      <Filter>Settings</Filter>
     </QtUi>
   </ItemGroup>
   <ItemGroup>

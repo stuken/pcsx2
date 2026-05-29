@@ -21,6 +21,9 @@ struct RendererInfo
 
 static constexpr RendererInfo s_renderer_info[] = {
 	{QT_TRANSLATE_NOOP("GraphicsSettingsWidget", "Automatic (Default)"), GSRendererType::Auto},
+#ifdef HAVE_PARALLEL_GS
+	{QT_TRANSLATE_NOOP("GraphicsSettingsWidget", "paraLLEl-GS"), GSRendererType::ParallelGS},
+#endif
 #ifdef _WIN32
 	//: Graphics backend/engine type. Leave as-is.
 	{QT_TRANSLATE_NOOP("GraphicsSettingsWidget", "Direct3D 11 (Legacy)"), GSRendererType::DX11},
@@ -64,6 +67,7 @@ GraphicsSettingsWidget::GraphicsSettingsWidget(SettingsWindow* settings_dialog, 
 	m_display_tab = setupTab(m_display, tr("Display"));
 	m_hardware_rendering_tab = setupTab(m_hw, tr("Rendering"));
 	m_software_rendering_tab = setupTab(m_sw, tr("Rendering"));
+	m_pgs_rendering_tab = setupTab(m_pgs, tr("Rendering"));
 	m_hardware_fixes_tab = setupTab(m_fixes, tr("Hardware Fixes"));
 	m_upscaling_fixes_tab = setupTab(m_upscaling, tr("Upscaling Fixes"));
 	m_texture_replacement_tab = setupTab(m_texture, tr("Texture Replacement"));
@@ -242,6 +246,32 @@ GraphicsSettingsWidget::GraphicsSettingsWidget(SettingsWindow* settings_dialog, 
 	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_advanced.texturePreloading, "EmuCore/GS", "texture_preloading", static_cast<int>(TexturePreloadingLevel::Off));
 
 	setTabVisible(m_advanced_tab, QtHost::ShouldShowAdvancedSettings());
+
+	//////////////////////////////////////////////////////////////////////////
+	// PGS Settings
+	//////////////////////////////////////////////////////////////////////////
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsSuperSampling, "EmuCore/GS", "pgsSuperSampling", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsHighResScanout, "EmuCore/GS", "pgsHighResScanout", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsSuperSampleTextures, "EmuCore/GS", "pgsSuperSampleTextures", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsDisableMipmaps, "EmuCore/GS", "pgsDisableMipmaps", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsDisableReadbackSync, "EmuCore/GS", "pgsDisableReadbackSync", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsSharpBackbuffer, "EmuCore/GS", "pgsSharpBackbuffer", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsBlendDemotion, "EmuCore/GS", "pgsBlendDemotion", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsTVEmulation, "EmuCore/GS", "pgsTVEmulation", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsCable, "EmuCore/GS", "pgsCable", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsCompositeDecode, "EmuCore/GS", "pgsCompositeDecode", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsDisableAutoProgressive, "EmuCore/GS", "pgsDisableAutoProgressive", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsDisableCRTCEnhancements, "EmuCore/GS", "pgsDisableCRTCEnhancements", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsPhosphorPrimaries, "EmuCore/GS", "pgsPhosphorPrimaries", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsPhosphorGamma, "EmuCore/GS", "pgsPhosphorGamma", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsDisplayCalibration, "EmuCore/GS", "pgsDisplayCalibration", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsPaperWhite, "EmuCore/GS", "pgsPaperWhite", 200);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsHighRefreshInsertion, "EmuCore/GS", "pgsHighRefreshInsertion", 0);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsApertureGrille, "EmuCore/GS", "pgsApertureGrille", 1);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsPhosphorBloom, "EmuCore/GS", "pgsPhosphorBloom", 100);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsExposure, "EmuCore/GS", "pgsExposure", 100);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsScanlineSharpness, "EmuCore/GS", "pgsScanlineSharpness", 50);
+	SettingWidgetBinder::BindWidgetToIntSetting(sif, m_pgs.pgsScanlineBreathing, "EmuCore/GS", "pgsScanlineBreathing", 50);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Non-trivial settings
@@ -557,6 +587,105 @@ GraphicsSettingsWidget::GraphicsSettingsWidget(SettingsWindow* settings_dialog, 
 
 		dialog()->registerWidgetHelp(
 			m_sw.swMipmap, tr("Mipmapping"), tr("Checked"), tr("Enables mipmapping, which some games require to render correctly."));
+
+		// parallel-gs
+		dialog()->registerWidgetHelp(m_pgs.pgsSuperSampling, tr("paraLLEl-GS Super Sampling"), tr("1x (native)"),
+			tr("Number of super samples used by paraLLEl-GS before down-sampling to native resolution. "
+				"More than 4x SSAA (sparse) is not recommended as there is diminishing returns in output quality. "
+				"16x SSAA yields a very nice result, but requires reasonably powerful hardware in some games."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsSharpBackbuffer, tr("Sharp backbuffer hacks (experimental)"), tr("Unchecked"),
+			tr("Some games perform a blit to the backbuffer. "
+				"This can significantly reduce image quality, since games tend to either scale the image, or convert the image to 16-bit colors. "
+				"This hack attempts to present the original image instead. This option may help alleviate that in lieu of a more proper game patch."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsBlendDemotion, tr("Blend demotion speed-hack (experimental)"), tr("Unchecked"),
+			tr("When super-sampling, some effect passes may become extremely expensive due to ridiculous overdraw. "
+				"Most of these passes don't really need super-sampling to achieve its effect. "
+				"Enabling this option tries to detect common cases and demotes those passes to single sampled. "
+				"This may dramatically improve performance for certain effects at cost of some image quality, especially around geometry edges. "
+				"Should not be used along high-res scanout or super-sampled textures since pixellation will be introduced."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsSuperSampleTextures, tr("Super-sample Textures (experimental)"), tr("Unchecked"),
+			tr("Ensures that frame buffer effects are sampled with all super-samples intact. "
+				"Costs significant GPU performance and VRAM, but may significantly improve image quality, especially when enabling high-res scanout. "
+				"This option is highly experimental and may show many rendering artifacts."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsHighResScanout, tr("High-res Scanout (experimental)"), tr("Unchecked"),
+			tr("When using SSAA, attempts to scan-out a higher resolution result based on stored super-samples. "
+				"Requires at least 4x SSAA (ordered) to work. Can benefit from 16x SSAA, at a steep GPU processing cost. "
+				"Highly game dependent if it works well. Common issues include pixellated output, or lack of sharpness. "
+				"When playing field rendered games, may eliminate most de-interlacing artifacts. "
+				"May need super-sampled texture option to be enabled for good results."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsDisableMipmaps, tr("Disable mip-mapping"), tr("Unchecked"),
+			tr("Disables mip-mapping. May give a sharper image in games using mip-mapping intended for native resolution. "
+				"May also break games which rely on mipmaps being used in esoteric ways."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsDisableReadbackSync, tr("Disable readback sync"), tr("Unchecked"),
+			tr("Disables sync for readbacks. Eliminates stalls, but will probably break things. Used for perf debug."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsTVEmulation, tr("Analog emulation"), tr("Up to your taste"),
+			tr("Emulates an analog video signal generated by the console.<br>"
+			   "Raw RGB: Just the raw digital image as-is without any filtering. Might match a perfect RGB SCART cable?<br>"
+			   "Auto: Picks NTSC or PAL based on the game.<br>"
+			   "NTSC or PAL can force specific analog encoding (e.g. PAL at 60 Hz)."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsCable, tr("Cable emulation"), tr("Up to your taste"),
+			tr("Emulates behavior of a specific kind of analog cable.<br>"
+			   "Component: The highest quality analog cable. Only cable that supports progressive scan. Very slight blur to conform with BT.1358 spec.<br>"
+			   "S-Video: A composite signal where luma and chroma are separate signals. Chroma is smeared significantly.<br>"
+			   "Composite: The classic yellow cable. Introduces artifacts and smear.<br>"));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsCompositeDecode, tr("Composite decoding"), tr("Up to your taste"),
+			tr("Implements different strategies for luma/chroma separation that TVs would have done back in the day.<br>"
+			   "Notch: Very basic filter circuit. Leads to blurrier image. Color fringing is expected.<br>"
+			   "3-line comb: Less blurry, but can artifact more. Color fringing is reduced.<br>"
+			   "3-line comb + notch: Blurrier, but fewer artifacts.<br>"));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsDisableAutoProgressive, tr("Disable automatic progressive scan"), tr("Unchecked"),
+			tr("Only enables progressive scan output if the game specifically enables it. More authentic, but will probably just look worse."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsDisableCRTCEnhancements, tr("Disable CRTC enhancements"), tr("Unchecked"),
+			tr("Disables all hacks which aim to enhance the image clarity. More authentic, but will probably just look worse."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsPhosphorPrimaries, tr("CRT phosphor primaries"), tr("Up to your taste"),
+			tr("Auto: picks appropriate color primaries based on the game region.<br>"
+				"NTSC BT.601: SMPTE standard from the 80s which should match real-world TV phosphors.<br>"
+				"PAL BT.601: Based on EBU standard.<br>"
+				"NTSC 1953: Based on legacy spec from 1953. Apparently Japan kept this standard."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsPhosphorGamma, tr("CRT phosphor gamma"), tr("2.4"),
+			tr("Sets gamma response of the phosphors. BT.1886 calls for 2.4 as default on both NTSC and PAL."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsDisplayCalibration, tr("Display calibration"), tr("Depends on your display"),
+			tr("Configures how to map the emulated CRT light onto your display. For PQ, you can set a target MaxCLL. "
+			   "If your setup automatically tonemaps HDR, you can disable tonemapping and let the compositor/display take care of it."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsPaperWhite, tr("Paper white"), tr("200 nits"),
+			tr("Sets a rough target for how bright the image should be in HDR mode. For good results make sure there is ample headroom between paper white and MaxCLL target."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsHighRefreshInsertion, tr("High-refresh rate insertion (WARNING: do not use if sensitive to flickering)"), tr("Unchecked"),
+			tr("Highly experimental mode that aims to emulate quick phosphor decay by driving the display at its native refresh rate. "
+			   "Requires EXT_present_timing to work. If VRR is detected or the display is close to a multiple of the target refresh rate, "
+			   "multiple in-between frames are presented that aim to simulate phosphor decay. "
+			   "Can be interesting for interlaced games since old CRTs got de-interlacing for free this way. "
+			   "This approach will darken the overall image so HDR with higher paper white setting is recommended."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsApertureGrille, tr("Aperture grille"), tr("Unchecked"),
+			tr("Emulates the classic CRT TV look. Some phosphor blooming is added on top to blend the dots together."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsPhosphorBloom, tr("Phosphor bloom"), tr("Up to taste"),
+			tr("Adds a bloom effect."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsExposure, tr("Exposure"), tr("Up to taste"),
+			tr("Tunes the exposure."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsScanlineSharpness, tr("Gaussian scanline sharpness"), tr("Up to taste"),
+			tr("Tunes how focused the electron guns are."));
+
+		dialog()->registerWidgetHelp(m_pgs.pgsScanlineBreathing, tr("Scanline breathing"), tr("Up to taste"),
+			tr("Simulates behavior where intense scanlines become less focused."));
 	}
 
 	// Hardware Fixes tab
@@ -1000,6 +1129,7 @@ void GraphicsSettingsWidget::updateRendererDependentOptions()
 	const bool is_hardware = (type == GSRendererType::DX11 || type == GSRendererType::DX12 || type == GSRendererType::OGL ||
 							  type == GSRendererType::VK || type == GSRendererType::Metal);
 	const bool is_software = (type == GSRendererType::SW);
+	const bool is_pgs = (type == GSRendererType::ParallelGS);
 	const bool is_auto = (type == GSRendererType::Auto);
 	const bool is_vk = (type == GSRendererType::VK);
 	const bool is_disable_barriers = (type == GSRendererType::Metal || type == GSRendererType::SW);
@@ -1010,6 +1140,7 @@ void GraphicsSettingsWidget::updateRendererDependentOptions()
 	{
 		setTabVisible(m_hardware_rendering_tab, true);
 		setTabVisible(m_software_rendering_tab, false, m_hardware_rendering_tab);
+		setTabVisible(m_pgs_rendering_tab, false, m_hardware_rendering_tab);
 
 		prev_tab = m_hardware_rendering_tab;
 	}
@@ -1017,6 +1148,15 @@ void GraphicsSettingsWidget::updateRendererDependentOptions()
 	{
 		setTabVisible(m_software_rendering_tab, true);
 		setTabVisible(m_hardware_rendering_tab, false, m_software_rendering_tab);
+		setTabVisible(m_pgs_rendering_tab, false, m_software_rendering_tab);
+
+		prev_tab = m_software_rendering_tab;
+	}
+	else if (is_pgs)
+	{
+		setTabVisible(m_pgs_rendering_tab, true);
+		setTabVisible(m_hardware_rendering_tab, false, m_pgs_rendering_tab);
+		setTabVisible(m_software_rendering_tab, false, m_pgs_rendering_tab);
 
 		prev_tab = m_software_rendering_tab;
 	}
@@ -1024,6 +1164,7 @@ void GraphicsSettingsWidget::updateRendererDependentOptions()
 	{
 		setTabVisible(m_hardware_rendering_tab, false, m_display_tab);
 		setTabVisible(m_software_rendering_tab, false, m_display_tab);
+		setTabVisible(m_pgs_rendering_tab, false, m_display_tab);
 
 		prev_tab = m_display_tab;
 	}

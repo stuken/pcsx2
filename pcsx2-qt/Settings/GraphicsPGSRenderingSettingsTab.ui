@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GraphicsPGSRenderingSettingsTab</class>
+ <widget class="QWidget" name="GraphicsPGSRenderingSettingsTab">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>722</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" columnstretch="0,0">
+   <item row="17" column="0">
+    <widget class="Line" name="pgsLine2">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="pgsRenderingSettingsLabel">
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Rendering Settings</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="Line" name="pgsLine1">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="16" column="0">
+    <layout class="QGridLayout" name="pgsGridLayout2" columnstretch="100,200" columnminimumwidth="0,0">
+     <property name="leftMargin">
+      <number>10</number>
+     </property>
+     <property name="topMargin">
+      <number>10</number>
+     </property>
+     <property name="rightMargin">
+      <number>10</number>
+     </property>
+     <property name="bottomMargin">
+      <number>10</number>
+     </property>
+     <property name="spacing">
+      <number>6</number>
+     </property>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="pgsCompositeDecode">
+       <item>
+        <property name="text">
+         <string>3-line comb</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3-line comb + notch</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Notch</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="pgsCable">
+       <item>
+        <property name="text">
+         <string>Component (YPbPr)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>S-Video</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Composite</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="pgsDecodeFilterLabel">
+       <property name="text">
+        <string>Composite decode filter:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="pgsTVEmulation">
+       <item>
+        <property name="text">
+         <string>Off (raw RGB)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Auto</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>NTSC</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PAL</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="pgsSignalEmulationLabel">
+       <property name="text">
+        <string>Signal emulation:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="pgsCableLabel">
+       <property name="text">
+        <string>Cable:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QCheckBox" name="pgsDisableAutoProgressive">
+       <property name="text">
+        <string>Disable automatic progressive scan</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QCheckBox" name="pgsDisableCRTCEnhancements">
+       <property name="text">
+        <string>Disable CRTC enhancements</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="18" column="0">
+    <widget class="QLabel" name="pgsCrtSettingsLabel">
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>CRT Settings</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" rowspan="2">
+    <layout class="QGridLayout" name="pgsGridLayout1" rowstretch="0,0,0,0" columnstretch="100,150" rowminimumheight="0,0,0,0" columnminimumwidth="0,0">
+     <property name="leftMargin">
+      <number>10</number>
+     </property>
+     <property name="topMargin">
+      <number>10</number>
+     </property>
+     <property name="rightMargin">
+      <number>10</number>
+     </property>
+     <property name="bottomMargin">
+      <number>10</number>
+     </property>
+     <item row="2" column="1">
+      <widget class="QCheckBox" name="pgsDisableReadbackSync">
+       <property name="text">
+        <string>Disable readback sync</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QCheckBox" name="pgsSharpBackbuffer">
+       <property name="text">
+        <string>Sharp backbuffer hack</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QCheckBox" name="pgsSuperSampleTextures">
+       <property name="text">
+        <string>Super-sample textures</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QCheckBox" name="pgsBlendDemotion">
+       <property name="text">
+        <string>Blend demotion hack</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="pgsHighResScanout">
+       <property name="text">
+        <string>High-resolution scanout</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QCheckBox" name="pgsDisableMipmaps">
+       <property name="text">
+        <string>Disable mip-mapping</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="pgsSuperSamplingLabel">
+       <property name="text">
+        <string>Super Sampling:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="pgsSuperSampling">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LayoutDirection::LeftToRight</enum>
+       </property>
+       <item>
+        <property name="text">
+         <string>1x (native)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2x SSAA (checkerboard)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4x SSAA (sparse grid)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4x SSAA (ordered grid, high-res output capable)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>8x SSAA (checkerboard, high-res output capable)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>16x SSAA (sparse grid, high-res output capable)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="15" column="0">
+    <widget class="QLabel" name="pgsAnalogPathLabel">
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Analog Path Settings</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <spacer name="pgsHorizSpacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="20" column="0">
+    <spacer name="pgsVerticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="19" column="0">
+    <layout class="QGridLayout" name="pgsGridLayout3" columnstretch="100,150">
+     <property name="leftMargin">
+      <number>10</number>
+     </property>
+     <property name="topMargin">
+      <number>10</number>
+     </property>
+     <property name="rightMargin">
+      <number>10</number>
+     </property>
+     <property name="bottomMargin">
+      <number>10</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="pgsPhosphorPrimariesLabel">
+       <property name="text">
+        <string>Phosphor color primaries:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="pgsDisplayCalibration">
+       <item>
+        <property name="text">
+         <string>SDR / BT.709 (2.2 gamma)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PQ / BT.2020 (peak 400 nits)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PQ / BT.2020 (peak 600 nits)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PQ / BT.2020 (peak 1000 nits)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PQ / BT.2020 (skip tonemap)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="pgsPaperWhiteLabel">
+       <property name="text">
+        <string>Paper white (HDR):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="pgsPhosphorBloomLabel">
+       <property name="text">
+        <string>Phosphor bloom strength:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="pgsPhosphorPrimaries">
+       <item>
+        <property name="text">
+         <string>No CRT emulation</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Auto</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>NTSC (BT.601 / 525 line)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PAL (BT.601 / 625 line)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>NTSC (legacy 1953, high saturation)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QCheckBox" name="pgsHighRefreshInsertion">
+       <property name="text">
+        <string>High-refresh rate insertion</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="pgsExposureLabel">
+       <property name="text">
+        <string>Exposure:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="pgsPhosphorGammaLabel">
+       <property name="text">
+        <string>Phosphor gamma:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="pgsDisplayCalibrationLabel">
+       <property name="text">
+        <string>Display calibration:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="pgsScanlineSharpnessLabel">
+       <property name="text">
+        <string>Scanline Sharpness:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="pgsPhosphorGamma">
+       <item>
+        <property name="text">
+         <string>2.4 (BT.1886)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2.2 (Legacy NTSC)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2.8 (Legacy PAL)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QCheckBox" name="pgsApertureGrille">
+       <property name="text">
+        <string>Aperture grille</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <property name="tristate">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="pgsPaperWhite">
+       <property name="suffix">
+        <string> nits</string>
+       </property>
+       <property name="minimum">
+        <number>100</number>
+       </property>
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+       <property name="singleStep">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QSlider" name="pgsScanlineSharpness">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="sliderPosition">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="pgsScanlineBreathingLabel">
+       <property name="text">
+        <string>Scanline Breathing:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QSlider" name="pgsScanlineBreathing">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="sliderPosition">
+        <number>50</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSlider" name="pgsPhosphorBloom">
+       <property name="maximum">
+        <number>200</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSlider" name="pgsExposure">
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>200</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

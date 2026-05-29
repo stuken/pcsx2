@@ -696,6 +696,7 @@ const char* Pcsx2Config::GSOptions::GetRendererName(GSRendererType type)
 		case GSRendererType::VK:    return "Vulkan";
 		case GSRendererType::SW:    return "Software";
 		case GSRendererType::Null:  return "Null";
+		case GSRendererType::ParallelGS: return "paraLLEl";
 		default:                    return "";
 			// clang-format on
 	}
@@ -891,7 +892,29 @@ bool Pcsx2Config::GSOptions::OptionsAreEqual(const GSOptions& right) const
 		OpEqu(Adapter) &&
 
 		OpEqu(HWDumpDirectory) &&
-		OpEqu(SWDumpDirectory));
+		OpEqu(SWDumpDirectory)) &&
+		OpEqu(PGSSuperSampling) &&
+		OpEqu(PGSHighResScanout) &&
+		OpEqu(PGSSuperSampleTextures) &&
+		OpEqu(PGSDisableMipmaps) &&
+		OpEqu(PGSDisableReadbackSync) &&
+		OpEqu(PGSSharpBackbuffer) &&
+		OpEqu(PGSBlendDemotion) &&
+		OpEqu(PGSTVEmulation) &&
+		OpEqu(PGSCable) &&
+		OpEqu(PGSCompositeDecode) &&
+		OpEqu(PGSDisableAutoProgressive) &&
+		OpEqu(PGSDisableCRTCEnhancements) &&
+		OpEqu(PGSPhosphorPrimaries) &&
+		OpEqu(PGSPhosphorGamma) &&
+		OpEqu(PGSDisplayCalibration) &&
+		OpEqu(PGSPaperWhite) &&
+		OpEqu(PGSHighRefreshInsertion) &&
+		OpEqu(PGSApertureGrille) &&
+		OpEqu(PGSPhosphorBloom) &&
+		OpEqu(PGSExposure) &&
+		OpEqu(PGSScanlineSharpness) &&
+		OpEqu(PGSScanlineBreathing);
 }
 
 bool Pcsx2Config::GSOptions::operator!=(const GSOptions& right) const
@@ -981,6 +1004,30 @@ void Pcsx2Config::GSOptions::LoadSave(SettingsWrapper& wrap)
 	SettingsWrapBitBool(HWSpinCPUForReadbacks);
 	SettingsWrapBitBoolEx(GPUPaletteConversion, "paltex");
 	SettingsWrapBitBoolEx(AutoFlushSW, "autoflush_sw");
+
+	SettingsWrapIntEnumEx(PGSSuperSampling, "pgsSuperSampling");
+	SettingsWrapBitBoolEx(PGSHighResScanout, "pgsHighResScanout");
+	SettingsWrapBitBoolEx(PGSSuperSampleTextures, "pgsSuperSampleTextures");
+	SettingsWrapBitBoolEx(PGSDisableMipmaps, "pgsDisableMipmaps");
+	SettingsWrapBitBoolEx(PGSDisableReadbackSync, "pgsDisableReadbackSync");
+	SettingsWrapBitBoolEx(PGSSharpBackbuffer, "pgsSharpBackbuffer");
+	SettingsWrapBitBoolEx(PGSBlendDemotion, "pgsBlendDemotion");
+	SettingsWrapIntEnumEx(PGSTVEmulation, "pgsTVEmulation");
+	SettingsWrapIntEnumEx(PGSCable, "pgsCable");
+	SettingsWrapIntEnumEx(PGSCompositeDecode, "pgsCompositeDecode");
+	SettingsWrapBitBoolEx(PGSDisableAutoProgressive, "pgsDisableAutoProgressive");
+	SettingsWrapBitBoolEx(PGSDisableCRTCEnhancements, "pgsDisableCRTCEnhancements");
+	SettingsWrapIntEnumEx(PGSPhosphorPrimaries, "pgsPhosphorPrimaries");
+	SettingsWrapIntEnumEx(PGSPhosphorGamma, "pgsPhosphorGamma");
+	SettingsWrapIntEnumEx(PGSDisplayCalibration, "pgsDisplayCalibration");
+	SettingsWrapIntEnumEx(PGSPaperWhite, "pgsPaperWhite");
+	SettingsWrapBitBoolEx(PGSHighRefreshInsertion, "pgsHighRefreshInsertion");
+	SettingsWrapBitBoolEx(PGSApertureGrille, "pgsApertureGrille");
+	SettingsWrapIntEnumEx(PGSPhosphorBloom, "pgsPhosphorBloom");
+	SettingsWrapIntEnumEx(PGSExposure, "pgsExposure");
+	SettingsWrapIntEnumEx(PGSScanlineSharpness, "pgsScanlineSharpness");
+	SettingsWrapIntEnumEx(PGSScanlineBreathing, "pgsScanlineBreathing");
+
 	SettingsWrapBitBoolEx(PreloadFrameWithGSData, "preload_frame_with_gs_data");
 	SettingsWrapBitBoolEx(Mipmap, "mipmap");
 	SettingsWrapBitBoolEx(ManualUserHacks, "UserHacks");
